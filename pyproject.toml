@@ -1,0 +1,17 @@
+[project]
+name = "higress-mcp-server"
+version = "0.1.0"
+description = "MCP Server for Higress"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "uvicorn>=0.24.0",
+    "starlette>=0.27.0",
+    "requests>=2.31.0",
+    "mcp[cli]>=1.2.1",
+    "openai>=1.61.0",
+    "langchain-mcp-adapters>=0.0.5",
+    "langgraph>=0.3.16",
+    "langchain-openai>=0.3.9",
+]
+
