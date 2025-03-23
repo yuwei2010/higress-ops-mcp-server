@@ -58,8 +58,21 @@ def create_assistant_node(tools):
         model_name="openai/gpt-4o",
     )
     
-    # Bind tools to the LLM
-    llm_with_tools = llm.bind_tools(tools)
+    # System prompt with instruction to get current plugin config before updating
+    system_prompt = (
+        """
+        When updating a plugin configuration with `set_plugin`, 
+        ALWAYS first call `get_plugin` to retrieve the current configuration before making any changes. 
+        This ensures that only the specified parameters are updated while preserving the existing configuration values.
+        """
+    )
+    
+    # Apply system prompt to LLM
+    llm_with_prompt = llm.bind(system_prompt=system_prompt)
+
+    # Bind tools to the LLM with the system prompt
+    llm_with_tools = llm_with_prompt.bind_tools(tools)
+
     return HigressAssistant(llm_with_tools)
     
 
