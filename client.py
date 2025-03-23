@@ -12,15 +12,15 @@ from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from langgraph.prebuilt import tools_condition
 from langgraph.graph.message import add_messages
-from utils import draw_graph
+from utils.graph import draw_graph
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from langchain_mcp_adapters.tools import load_mcp_tools
-from tools.tools_handler import create_tool_node_with_fallback, print_event
+from utils.tools_handler import create_tool_node_with_fallback, print_event
 
 # Define write operations that require confirmation
-SENSITIVE_TOOLS = ["set_plugin"]
+SENSITIVE_TOOLS = ["update_request_block_plugin"]
 
 class State(TypedDict):
     """State for the chat application."""
@@ -61,7 +61,7 @@ def create_assistant_node(tools):
     # System prompt with instruction to get current plugin config before updating
     system_prompt = (
         """
-        When updating a plugin configuration with `set_plugin`, 
+        When updating a plugin configuration with `update_request_block_plugin`, 
         ALWAYS first call `get_plugin` to retrieve the current configuration before making any changes. 
         This ensures that only the specified parameters are updated while preserving the existing configuration values.
         """
