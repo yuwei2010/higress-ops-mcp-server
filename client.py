@@ -152,7 +152,13 @@ async def build_and_run_graph(tools):
     
     # Main interaction loop
     while True:
-        query = input("\n用户: ").strip()
+        try:
+            query = input("\n用户: ")
+            # 检查输入是否完整
+            print(f"收到输入: {query}")
+        except Exception as e:
+            print(f"输入处理错误: {e}")
+            continue
         if query.lower() in ["q", "exit", "quit"]:
             print("对话结束，拜拜！")
             break

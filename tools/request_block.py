@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, List, Any
 import logging
 from utils.higress_client import HigressClient
 
@@ -20,30 +20,28 @@ class RequestBlockTools:
             Update the configuration for the request-block plugin.
             
             Args:
-                configurations: The new configuration for the plugin
-                configuration is a dictionary with the following keys:
-                    block_bodies: List of strings to block in the request body
-                    block_headers: List of strings to block in the request header
-                    block_urls: List of strings to block in the request URL
-                    blocked_code: The HTTP status code to return when a block is matched
-                    case_sensitive: Boolean to determine if the block is case sensitive
-                At least one of block_urls, block_headers, or block_bodies is required.
+                configurations: Dict[str, Any] containing the following keys:
+                - block_bodies: List[str]: Strings to block in the request body
+                - block_headers: List[str]: Strings to block in the request header
+                - block_urls: List[str]: Strings to block in the request URL
+                - blocked_code: int: HTTP status code to return when a block is matched
+                - case_sensitive: bool: Whether the block matching is case sensitive
 
                 Here is an example:
-                    "configurations": {
-                        "block_bodies": [
-                            "hello world"
-                        ],
-                        "block_headers": [
-                            "example-key",
-                            "example-value"
-                        ],
-                        "block_urls": [
-                            "seven.html"
-                        ],
-                        "blocked_code": 404,
-                        "case_sensitive": false
-                    }
+                {
+                    "block_bodies": [
+                        "hello world"
+                    ],
+                    "block_headers": [
+                        "example-key",
+                        "example-value"
+                    ],
+                    "block_urls": [
+                        "seven.html"
+                    ],
+                    "blocked_code": 404,
+                    "case_sensitive": false
+                }
                 
             Returns:
                 Updated plugin data
