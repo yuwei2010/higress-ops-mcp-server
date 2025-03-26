@@ -15,11 +15,12 @@ class RequestBlockTools:
     
     def register_tools(self, mcp: Any):
         @mcp.tool()
-        async def update_request_block_plugin(configurations: Dict, scope: str, resource_name: str = None) -> Dict:
+        async def update_request_block_plugin(enabled: bool, configurations: Dict, scope: str, resource_name: str = None) -> Dict:
             """
             Update the configuration for the request-block plugin.
             
             Args:
+                enabled: bool: Whether the plugin is enabled
                 configurations: Dict[str, Any] containing the following keys:
                 - block_bodies: List[str]: Strings to block in the request body
                 - block_headers: List[str]: Strings to block in the request header
@@ -56,4 +57,4 @@ class RequestBlockTools:
             self.logger.info(f"Update request-block plugin at {scope} scope" + 
                           (f" for {resource_name}" if resource_name else "") + 
                           f" with configurations: {configurations}")
-            return self.higress_client.update_plugin(name, configurations, scope, resource_name)
+            return self.higress_client.update_plugin(name, enabled, configurations, scope, resource_name)

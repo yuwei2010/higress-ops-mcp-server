@@ -128,11 +128,12 @@ class HigressClient:
         path = paths[scope]
         return self.get(path)
     
-    def update_plugin(self, name: str, configurations: Dict[str, Any], scope: str, resource_name: str = None) -> Dict[str, Any]:
+    def update_plugin(self, name: str, enabled: bool, configurations: Dict[str, Any], scope: str, resource_name: str = None) -> Dict[str, Any]:
         """Update a Higress plugin configuration.
         
         Args:
             name: The name of the plugin
+            enabled: Whether the plugin is enabled
             configurations: The new configuration values to update
             scope: The scope at which the plugin is applied. Must be one of: 
                   "global", "domain", "service", or "route"
@@ -153,6 +154,7 @@ class HigressClient:
             config[key] = value
         
         data["configurations"] = config
+        data["enabled"] = enabled
 
         # Determine the appropriate path based on scope
         paths = {

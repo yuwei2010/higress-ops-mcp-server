@@ -89,9 +89,11 @@ def route_conditional_tools(state: State) -> str:
     ai_message = state["messages"][-1]
     tool_call = ai_message.tool_calls[0]
     
+    # 检查是否是敏感工具
     if tool_call["name"] in SENSITIVE_TOOLS:
         print("Route to sensitive tools........")
         return "sensitive_tools"
+  
     print("Route to safe tools........")
     return "safe_tools"
 
