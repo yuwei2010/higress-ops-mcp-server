@@ -15,7 +15,7 @@ class RequestBlockTools:
     
     def register_tools(self, mcp: Any):
         @mcp.tool()
-        async def update_request_block_plugin(configurations: Dict) -> Dict:
+        async def update_request_block_plugin(configurations: Dict, scope: str, resource_name: str = None) -> Dict:
             """
             Update the configuration for the request-block plugin.
             
@@ -26,6 +26,9 @@ class RequestBlockTools:
                 - block_urls: List[str]: Strings to block in the request URL
                 - blocked_code: int: HTTP status code to return when a block is matched
                 - case_sensitive: bool: Whether the block matching is case sensitive
+                scope: The scope at which the plugin is applied. Must be one of: 
+                      "global", "domain", "service", or "route"
+                resource_name: The name of the resource (required for domain, service, route scopes)
 
                 Here is an example:
                 {
@@ -45,7 +48,12 @@ class RequestBlockTools:
                 
             Returns:
                 Updated plugin data
+                
+            Raises:
+                ValueError: If scope is not specified or resource_name is not provided for non-global scopes
             """
             name = "request-block"
-            self.logger.info(f"Update request-block plugin with configurations: {configurations}")
-            return self.higress_client.update_plugin(name, configurations)
+            self.logger.info(f"Update request-block plugin at {scope} scope" + 
+                          (f" for {resource_name}" if resource_name else "") + 
+                          f" with configurations: {configurations}")
+            return self.higress_client.update_plugin(name, configurations, scope, resource_name)

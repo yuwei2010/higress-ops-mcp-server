@@ -97,34 +97,73 @@ class HigressClient:
             self.logger.error(f"PUT request failed for {path}: {str(e)}")
             raise ValueError(f"Request failed: {str(e)}")
     
-    def get_plugin(self, name: str) -> Dict[str, Any]:
+    def get_plugin(self, name: str, scope: str, resource_name: str = None) -> Dict[str, Any]:
         """Get detailed information about a specific Higress plugin.
         
         Args:
             name: The name of the plugin
+            scope: The scope at which the plugin is applied. Must be one of: 
+                  "global", "domain", "service", or "route"
+            resource_name: The name of the resource (required for domain, service, route scopes)
             
         Returns:
             Plugin data as a dictionary
+            
+        Raises:
+            ValueError: If resource_name is not provided for non-global scopes or scope is not specified
         """
-        path = f"/v1/global/plugin-instances/{name}"
+        if scope != "global" and not resource_name:
+            raise ValueError(f"resource_name is required for {scope} scope")
+            
+        paths = {
+            "global": f"/v1/global/plugin-instances/{name}",
+            "domain": f"/v1/domains/{resource_name}/plugin-instances/{name}",
+            "service": f"/v1/services/{resource_name}/plugin-instances/{name}",
+            "route": f"/v1/routes/{resource_name}/plugin-instances/{name}"
+        }
+        
+        if scope not in paths:
+            raise ValueError(f"Invalid scope: {scope}. Must be one of: global, domain, service, route")
+            
+        path = paths[scope]
         return self.get(path)
     
-    def update_plugin(self, name: str, configurations: Dict[str, Any]) -> Dict[str, Any]:
+    def update_plugin(self, name: str, configurations: Dict[str, Any], scope: str, resource_name: str = None) -> Dict[str, Any]:
         """Update a Higress plugin configuration.
         
         Args:
             name: The name of the plugin
             configurations: The new configuration values to update
+            scope: The scope at which the plugin is applied. Must be one of: 
+                  "global", "domain", "service", or "route"
+            resource_name: The name of the resource (required for domain, service, route scopes)
             
         Returns:
             Updated plugin data
+            
+        Raises:
+            ValueError: If resource_name is not provided for non-global scopes or scope is not specified
         """
-        data = self.get_plugin(name)["data"]
+        # Get current plugin data using the appropriate scope
+        data = self.get_plugin(name, scope, resource_name)["data"]
         config = data["configurations"]
+        
+        # Update configuration with new values
         for key, value in configurations.items():
             config[key] = value
         
         data["configurations"] = config
 
-        path = f"/v1/global/plugin-instances/{name}"
+        # Determine the appropriate path based on scope
+        paths = {
+            "global": f"/v1/global/plugin-instances/{name}",
+            "domain": f"/v1/domains/{resource_name}/plugin-instances/{name}",
+            "service": f"/v1/services/{resource_name}/plugin-instances/{name}",
+            "route": f"/v1/routes/{resource_name}/plugin-instances/{name}"
+        }
+        
+        if scope not in paths:
+            raise ValueError(f"Invalid scope: {scope}. Must be one of: global, domain, service, route")
+            
+        path = paths[scope]
         return self.put(path, data)
