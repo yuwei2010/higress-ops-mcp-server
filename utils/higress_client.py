@@ -1,6 +1,6 @@
 import logging
 import requests
-from typing import Dict, Any
+from typing import Dict, List, Any
 
 class HigressClient:
     """Client for interacting with Higress API."""
@@ -33,21 +33,9 @@ class HigressClient:
         self.logger.info(f"GET request to: {url}")
         
         try:
-            response = requests.get(
-                url,
-                cookies=self.cookies
-            )
-            
-            if response.status_code == 404:
-                raise ValueError(f"Resource not found: {path}")
-                
+            response = requests.get(url, cookies=self.cookies)
             response.raise_for_status()
-            data = response.json()
-            
-            if self.logger.isEnabledFor(logging.DEBUG):
-                self.logger.debug(f"Response data: {data}")
-                
-            return data
+            return response.json()["data"]
             
         except requests.RequestException as e:
             self.logger.error(f"GET request failed for {path}: {str(e)}")
@@ -146,7 +134,7 @@ class HigressClient:
             ValueError: If resource_name is not provided for non-global scopes or scope is not specified
         """
         # Get current plugin data using the appropriate scope
-        data = self.get_plugin(name, scope, resource_name)["data"]
+        data = self.get_plugin(name, scope, resource_name)
         config = data["configurations"]
         
         # Update configuration with new values
@@ -169,3 +157,32 @@ class HigressClient:
             
         path = paths[scope]
         return self.put(path, data)
+        
+    def list_routes(self) -> List[Dict[str, Any]]:
+        """
+        Get a list of all routes from Higress.
+        
+        Returns:
+            List of route data as dictionaries
+            
+        Raises:
+            ValueError: If the request fails
+        """
+        path = "/v1/routes"
+        return self.get(path)
+        
+    def get_route(self, name: str) -> Dict[str, Any]:
+        """
+        Get detailed information about a specific route.
+        
+        Args:
+            name: The name of the route
+            
+        Returns:
+            Route data as a dictionary
+            
+        Raises:
+            ValueError: If the route is not found or the request fails
+        """
+        path = f"/v1/routes/{name}"
+        return self.get(path)
