@@ -1,7 +1,7 @@
 import logging
 from fastmcp import FastMCP
-from tools.common import CommonTools
-from tools.request_block import RequestBlockTools
+from tools.plugins.common import CommonTools
+from tools.plugins.request_block import RequestBlockTools
 from utils.higress_client import HigressClient
 
 class HigressMCPServer:
@@ -19,9 +19,7 @@ class HigressMCPServer:
         self.higress_client = HigressClient(self.logger)
 
         # Initialize tools
-        self._register_tools()
-
-               
+        self._register_tools()   
 
     def _register_tools(self):
         """Register all MCP tools."""

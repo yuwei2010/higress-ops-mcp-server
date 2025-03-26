@@ -55,7 +55,8 @@ def create_assistant_node(tools):
     llm = ChatOpenAI(
         openai_api_key=getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
-        model_name="openai/gpt-4o",
+        model_name="qwen/qwen-turbo",
+        # model_name="openai/gpt-4o",
     )
     
     # System prompt with instruction to get current plugin config before updating
@@ -177,7 +178,7 @@ async def build_and_run_graph(tools):
         
         # Check if we need user confirmation
         current_state = graph.get_state(config)
-        print("########### Current state:", current_state)
+        # print("########### Current state:", current_state)
         if current_state.next:
             user_input = input("\n您是否批准上述操作？输入'y'继续；否则，请说明您请求的更改: ")
             if user_input.strip().lower() == "y":
