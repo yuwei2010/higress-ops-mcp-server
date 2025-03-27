@@ -30,28 +30,29 @@ class RequestBlockTools:
                 scope: The scope at which the plugin is applied. Must be one of: 
                       "global", "domain", "service", or "route"
                 resource_name: The name of the resource (required for domain, service, route scopes)
-
-                Here is an example:
-                {
-                    "block_bodies": [
-                        "hello world"
-                    ],
-                    "block_headers": [
-                        "example-key",
-                        "example-value"
-                    ],
-                    "block_urls": [
-                        "seven.html"
-                    ],
-                    "blocked_code": 404,
-                    "case_sensitive": false
-                }
                 
             Returns:
                 Updated plugin data
                 
             Raises:
                 ValueError: If scope is not specified or resource_name is not provided for non-global scopes
+
+            Example:
+            {
+                "block_bodies": [
+                    "hello world"
+                ],
+                "block_headers": [
+                    "example-key",
+                    "example-value"
+                ],
+                "block_urls": [
+                    "seven.html"
+                ],
+                "blocked_code": 404,
+                "case_sensitive": false
+            }
+                
             """
             name = "request-block"
             self.logger.info(f"Update request-block plugin at {scope} scope" + 

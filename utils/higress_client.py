@@ -16,6 +16,33 @@ class HigressClient:
         self.cookies = {
             "_hi_sess": "OM6xeIuIyBQh1JJPwWrOrkpWAgq01LzhLmBHzxZ3M/c="
         }
+        
+    def _process_response(self, response: requests.Response, method: str, path: str) -> Dict[str, Any]:
+        """Process the API response and handle success/error cases.
+        
+        Args:
+            response: The HTTP response object
+            method: The HTTP method (GET, POST, PUT)
+            path: The API path
+            
+        Returns:
+            The response data
+            
+        Raises:
+            ValueError: If the API returns success=false
+        """
+        response.raise_for_status()
+        response_json = response.json()
+        self.logger.info(f"{method} {path} response: {response_json}")
+        
+        # 如果 success 字段存在且为 False，则表示错误
+        if "success" in response_json and response_json["success"] == False:
+            error_msg = response_json.get("message", "Unknown API error")
+            self.logger.error(f"API error for {method} {path}: {error_msg}")
+            raise ValueError(f"API error: {error_msg}")
+        
+        # 如果 data 字段存在，返回 data；否则返回整个响应
+        return response_json.get("data", response_json)
 
     def get(self, path: str) -> Dict[str, Any]:
         """Make a GET request to the Higress API.
@@ -27,20 +54,54 @@ class HigressClient:
             Response data as a dictionary
             
         Raises:
-            ValueError: If the request fails
+            ValueError: If the request fails or the API returns success=false
         """
         url = f"{self.base_url}{path}"
         self.logger.info(f"GET request to: {url}")
         
         try:
             response = requests.get(url, cookies=self.cookies)
-            response.raise_for_status()
-            return response.json()["data"]
+            return self._process_response(response, "GET", path)
             
         except requests.RequestException as e:
             self.logger.error(f"GET request failed for {path}: {str(e)}")
             raise ValueError(f"Request failed: {str(e)}")
     
+
+    def post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Make a POST request to the Higress API.
+        
+        Args:
+            path: API path (without base URL)
+            data: The data to send in the request body
+            
+        Returns:
+            Response data as a dictionary
+            
+        Raises:
+            ValueError: If the request fails or the API returns success=false
+        """
+        # 打印 curl post 命令
+        import json
+        cookie_str = '; '.join([f"{k}={v}" for k, v in self.cookies.items()])
+        curl_cmd = f'''curl -X POST \
+  '{self.base_url}{path}' \
+  -H 'Content-Type: application/json' \
+  -H 'Cookie: {cookie_str}' \
+  -d '{json.dumps(data)}' '''
+        self.logger.info(f"Equivalent curl command:\n{curl_cmd}")
+        
+        url = f"{self.base_url}{path}"
+        self.logger.info(f"POST request to: {url}")
+        
+        try:
+            response = requests.post(url, json=data, cookies=self.cookies)
+            return self._process_response(response, "POST", path)
+            
+        except requests.RequestException as e:
+            self.logger.error(f"POST request failed for {path}: {str(e)}")
+            raise ValueError(f"Request failed: {str(e)}")
+
     def put(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Make a PUT request to the Higress API.
         
@@ -52,7 +113,7 @@ class HigressClient:
             Response data as a dictionary
             
         Raises:
-            ValueError: If the request fails
+            ValueError: If the request fails or the API returns success=false
         """
         url = f"{self.base_url}{path}"
         self.logger.info(f"PUT request to: {url}")
@@ -75,11 +136,9 @@ class HigressClient:
                 headers={"Content-Type": "application/json"}
             )
             
-            response.raise_for_status()
-            response_data = response.json()
-            
+            result = self._process_response(response, "PUT", path)
             self.logger.info(f"PUT request successful: {path}")
-            return response_data
+            return result
             
         except requests.RequestException as e:
             self.logger.error(f"PUT request failed for {path}: {str(e)}")
@@ -186,3 +245,49 @@ class HigressClient:
         """
         path = f"/v1/routes/{name}"
         return self.get(path)
+        
+    def update_route(self, route_name: str, route_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create or update a route.
+        
+        Args:
+            route_name: The name of the route (required)
+            route_config: The route configuration dictionary
+
+        Returns:
+            The updated route configuration
+            
+        Raises:
+            ValueError: If the request fails or required fields are missing
+        """
+        if not route_name:
+            raise ValueError("Route name is required") 
+
+        path = f"/v1/routes/{route_name}"
+        return self.put(path, route_config)
+
+    def add_route(self, route_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create or update a route.
+        
+        Args:
+            route_config: The route configuration dictionary. Must contain at least:
+                - name: The name of the route
+                - path: The path configuration
+                - services: The list of services for this route
+                
+        Returns:
+            The updated route configuration
+            
+        Raises:
+            ValueError: If the request fails or required fields are missing
+        """
+        if not route_config.get("name"):
+            raise ValueError("Route name is required")
+        if not route_config.get("path"):
+            raise ValueError("Route path configuration is required")
+        if not route_config.get("services"):
+            raise ValueError("At least one service is required for the route")
+            
+        path = f"/v1/routes"
+        return self.post(path, route_config)
