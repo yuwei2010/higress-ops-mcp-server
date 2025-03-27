@@ -3,6 +3,7 @@ from fastmcp import FastMCP
 from tools.plugins.common import CommonTools
 from tools.plugins.request_block import RequestBlockTools
 from tools.route import RouteTools
+from tools.service_source import ServiceSourceTools
 from utils.higress_client import HigressClient
 
 class HigressMCPServer:
@@ -28,11 +29,13 @@ class HigressMCPServer:
         common_tools = CommonTools(self.logger, self.higress_client)
         request_block_tools = RequestBlockTools(self.logger, self.higress_client)
         route_tools = RouteTools(self.logger, self.higress_client)
+        service_source_tools = ServiceSourceTools(self.logger, self.higress_client)
         
         # Register tools from each module
         common_tools.register_tools(self.mcp)
         request_block_tools.register_tools(self.mcp)
         route_tools.register_tools(self.mcp)
+        service_source_tools.register_tools(self.mcp)
 
     def run(self):
         """Run the MCP server."""

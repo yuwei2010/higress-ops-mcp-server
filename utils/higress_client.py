@@ -66,7 +66,6 @@ class HigressClient:
         except requests.RequestException as e:
             self.logger.error(f"GET request failed for {path}: {str(e)}")
             raise ValueError(f"Request failed: {str(e)}")
-    
 
     def post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Make a POST request to the Higress API.
@@ -194,11 +193,13 @@ class HigressClient:
         """
         # Get current plugin data using the appropriate scope
         data = self.get_plugin(name, scope, resource_name)
-        config = data["configurations"]
         
-        # Update configuration with new values
-        for key, value in configurations.items():
-            config[key] = value
+        # 处理 configurations 并更新配置
+        config = data["configurations"] or {}
+        
+        # 如果 configurations 不为 None，更新配置
+        if configurations:
+            config.update(configurations)
         
         data["configurations"] = config
         data["enabled"] = enabled
@@ -291,3 +292,85 @@ class HigressClient:
             
         path = f"/v1/routes"
         return self.post(path, route_config)
+
+    def list_service_sources(self) -> List[Dict[str, Any]]:
+        """
+        Get a list of all service sources from Higress.
+        
+        Returns:
+            List of service sources data as dictionaries
+            
+        Raises:
+            ValueError: If the request fails
+        """
+        path = "/v1/service-sources"
+        return self.get(path)
+        
+    def add_service_source(self, service_source_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Add a new service source.
+        
+        Args:
+            service_source_config: The service source configuration dictionary. Must contain at least:
+                - name: The name of the service source
+                - type: The type of the service source (static or dns)
+                - domain: The domain name for the service source
+                - port: The port number
+                
+        Returns:
+            The created service source configuration
+            
+        Raises:
+            ValueError: If the request fails or required fields are missing
+        """
+        if not service_source_config.get("name"):
+            raise ValueError("Service source name is required")
+        if not service_source_config.get("type"):
+            raise ValueError("Service source type is required")
+        if not service_source_config.get("domain"):
+            raise ValueError("Service source domain is required")
+        if not service_source_config.get("port"):
+            raise ValueError("Service source port is required")
+        
+        source_type = service_source_config.get("type")
+        if source_type == "dns" and not service_source_config.get("protocol"):
+            raise ValueError("Protocol is required for DNS service sources")
+                
+        path = "/v1/service-sources"
+        return self.post(path, service_source_config)
+        
+    def get_service_source(self, name: str) -> Dict[str, Any]:
+        """
+        Get detailed information about a specific service source.
+        
+        Args:
+            name: The name of the service source
+            
+        Returns:
+            Service source data as a dictionary
+            
+        Raises:
+            ValueError: If the service source is not found or the request fails
+        """
+        path = f"/v1/service-sources/{name}"
+        return self.get(path)
+        
+    def update_service_source(self, name: str, service_source_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Update a service source.
+        
+        Args:
+            name: The name of the service source
+            service_source_config: The service source configuration dictionary
+                
+        Returns:
+            The updated service source configuration
+            
+        Raises:
+            ValueError: If the request fails or required fields are missing
+        """
+        if not name:
+            raise ValueError("Service source name is required")
+            
+        path = f"/v1/service-sources/{name}"
+        return self.put(path, service_source_config)
