@@ -20,7 +20,7 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from utils.tools_handler import create_tool_node_with_fallback, print_event
 
 # Define write operations that require confirmation
-SENSITIVE_TOOLS = ["update_request_block_plugin", "update_route", "add_route"]
+SENSITIVE_TOOLS = ["update_request_block_plugin", "update_route", "add_route", "update_service_source", "add_service_source"]
 
 class State(TypedDict):
     """State for the chat application."""
