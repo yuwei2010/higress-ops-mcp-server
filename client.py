@@ -17,7 +17,7 @@ from mcp.client.stdio import stdio_client
 
 from utils.graph import draw_graph
 from utils.params import parse_args, validate
-from utils.tools_handler import create_tool_node_with_fallback, print_event
+from tools.handler import create_tool_node_with_fallback, print_event
 
 
 # Define write operations that require confirmation
