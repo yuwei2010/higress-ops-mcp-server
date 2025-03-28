@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Dict
+from fastmcp import FastMCP
 
 class CommonTools:
-    def register_tools(self, mcp: Any):
+    def register_tools(self, mcp: FastMCP):
         @mcp.tool()
         async def get_plugin(name: str, scope: str, resource_name: str = None) -> Dict:
             """Get detailed information about a specific Higress plugin.

@@ -1,5 +1,7 @@
 import logging
-from typing import Any, List, Type
+
+from fastmcp import FastMCP
+from typing import List, Type
 from utils.higress_client import HigressClient
 
 class ToolsRegister:
@@ -8,7 +10,7 @@ class ToolsRegister:
     This centralizes the tool registration process and reduces duplication.
     """
     
-    def __init__(self, logger: logging.Logger, higress_client: HigressClient, mcp: Any):
+    def __init__(self, logger: logging.Logger, higress_client: HigressClient, mcp: FastMCP):
         """
         Initialize the tools registrar.
         

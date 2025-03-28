@@ -1,7 +1,8 @@
 from typing import Dict, List, Any
+from fastmcp import FastMCP
 
 class RouteTools:
-    def register_tools(self, mcp: Any):
+    def register_tools(self, mcp: FastMCP):
         @mcp.tool()
         async def list_routes() -> List[Dict]:
             """
@@ -29,7 +30,6 @@ class RouteTools:
             Raises:
                 ValueError: If the route is not found or the request fails
             """
-            self.logger.info(f"Getting route: {name}")
             return self.higress_client.get_route(name)
             
         @mcp.tool()

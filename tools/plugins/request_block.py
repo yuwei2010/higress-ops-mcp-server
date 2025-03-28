@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Dict
+from fastmcp import FastMCP
 
 class RequestBlockTools:
-    def register_tools(self, mcp: Any):
+    def register_tools(self, mcp: FastMCP):
         @mcp.tool()
         async def update_request_block_plugin(enabled: bool, configurations: Dict, scope: str, resource_name: str = None) -> Dict:
             """

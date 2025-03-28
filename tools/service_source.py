@@ -1,7 +1,8 @@
 from typing import Dict, List, Any
+from fastmcp import FastMCP
 
 class ServiceSourceTools:
-    def register_tools(self, mcp: Any):
+    def register_tools(self, mcp: FastMCP):
         @mcp.tool()
         async def list_service_sources() -> List[Dict]:
             """
