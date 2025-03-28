@@ -220,10 +220,15 @@ class HigressClient:
             ValueError: If the request fails or required fields are missing
         """
         if not name:
-            raise ValueError("Route name is required") 
+            raise ValueError("Route name is required")
+
+        # Get current route data avoid overwriting the old configurations
+        route_config = self.get_route(name)
+        if configurations:
+            route_config.update(configurations)
 
         path = f"/v1/routes/{name}"
-        return self.put(path, configurations)
+        return self.put(path, route_config)
 
     def add_route(self, configurations: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -329,6 +334,11 @@ class HigressClient:
         """
         if not name:
             raise ValueError("Service source name is required")
-            
+
+        # Get current service source data avoid overwriting the old configurations
+        service_source_config = self.get_service_source(name)
+        if configurations:
+            service_source_config.update(configurations)
+
         path = f"/v1/service-sources/{name}"
-        return self.put(path, configurations)
+        return self.put(path, service_source_config)
