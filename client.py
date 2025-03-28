@@ -21,7 +21,7 @@ from utils.params import parse_args, validate
 from tools.handler import create_tool_node_with_fallback, print_event
 
 
-# Define write operations that require confirmation
+# Define write operations that require human confirmation
 SENSITIVE_TOOLS = ["update_request_block_plugin", "update_route", "add_route", "update_service_source", "add_service_source"]
 
 class State(TypedDict):
@@ -33,22 +33,8 @@ class HigressAssistant:
         self.runnable = runnable
 
     def __call__(self, state: State, config: RunnableConfig):
-        while True:
-            # 创建了一个无限循环，它将一直执行直到：从 self.runnable 获取的结果是有效的。
-            # 如果结果无效（例如，没有工具调用且内容为空或内容不符合预期格式），循环将继续执行，
-            result = self.runnable.invoke(state["messages"])
-            # 如果，runnable执行完后，没有得到一个实际的输出
-            if not result.tool_calls and (  # 如果结果中没有工具调用，并且内容为空或内容列表的第一个元素没有"text"，则需要重新提示用户输入。
-                    not result.content
-                    or isinstance(result.content, list)
-                    and not result.content[0].get("text")
-            ):
-                messages = state["messages"] + [HumanMessage(content="请提供一个真实的输出作为回应。")]
-                state = {**state, "messages": messages}
-            else:  # 如果： runnable执行后已经得到，想要的输出，则退出循环
-                break
+        result = self.runnable.invoke(state["messages"])
         return {'messages': result}
-
 
 def create_assistant_node(tools):
     """Create the assistant node that uses the LLM to generate responses."""
@@ -152,29 +138,60 @@ async def build_and_run_graph(tools):
         async for event in events:
             print_event(event, printed_set)
         
-        # Check if we need user confirmation
-        current_state = graph.get_state(config)
-        if current_state.next:
-            user_input = input("\nDo you approve the above operation? Enter 'y' to continue; otherwise, please explain your requested changes: ")
-            if user_input.strip().lower() == "y":
-                # Continue execution
-                events = graph.astream(None, config, stream_mode="values")
-                async for event in events:
-                    print_event(event, printed_set)
-            else:
-                # Reject the tool call with user's reason
-                tool_call_id = current_state.values["messages"][-1].tool_calls[0]["id"]
-                rejection_state = {
-                    "messages": [
+        # Process tool calls and confirmations recursively
+        await process_tool_calls(graph, config, printed_set)
+
+async def process_tool_calls(graph, config, printed_set):
+    """Process tool calls recursively, asking for user confirmation when needed."""
+    current_state = graph.get_state(config)
+    
+    # If there's a next node, we need user confirmation
+    if current_state.next:
+        # Check if the last message contains tool calls that need confirmation
+        last_message = current_state.values["messages"][-1]
+        if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+            # Get the tool name from the tool call
+            tool_name = last_message.tool_calls[0].get("name", "")
+            
+            # Only ask for confirmation for sensitive operations
+            if tool_name in SENSITIVE_TOOLS:
+                user_input = input("\nDo you approve the above operation? Enter 'y' to continue; otherwise, please explain your requested changes: ")
+                
+                if user_input.strip().lower() == "y":
+                    # Continue execution
+                    events = graph.astream(None, config, stream_mode="values")
+                    async for event in events:
+                        print_event(event, printed_set)
+                    
+                    # Process any subsequent tool calls
+                    await process_tool_calls(graph, config, printed_set)
+                else:
+                    # Reject the tool call with user's reason
+                    tool_call_id = last_message.tool_calls[0]["id"]
+                    rejection_state = {
+                        "messages": [
                             ToolMessage(
                                 tool_call_id=tool_call_id,
                                 content=f"Operation rejected by user. Reason: '{user_input}'.",
                             )
                         ]
                     }
-                result = graph.astream(rejection_state, config, stream_mode="values")
-                async for event in result:
+                    
+                    # Process the rejection
+                    events = graph.astream(rejection_state, config, stream_mode="values")
+                    async for event in events:
+                        print_event(event, printed_set)
+                    
+                    # Process any subsequent tool calls that might be generated after rejection
+                    await process_tool_calls(graph, config, printed_set)
+            else:
+                # For non-sensitive tools, continue without confirmation
+                events = graph.astream(None, config, stream_mode="values")
+                async for event in events:
                     print_event(event, printed_set)
+                
+                # Process any subsequent tool calls
+                await process_tool_calls(graph, config, printed_set)
 
 async def main():
     """Main function to run the MCP client."""
