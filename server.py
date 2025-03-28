@@ -13,14 +13,8 @@ from utils.params import parse_args, validate
 
 class HigressMCPServer:
     def __init__(self, base_url=None, username=None, password=None):
-        self.name = "higress_mcp_server"
+        self.name = "higress-mcp-server"
         self.mcp = FastMCP(self.name)
-        
-        # Configure logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
         self.logger = logging.getLogger(self.name)
         
         # Initialize Higress client with provided credentials

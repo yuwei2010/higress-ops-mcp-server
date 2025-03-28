@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import uuid
 from os import getenv
 from typing import Annotated, List, TypedDict
@@ -127,7 +128,7 @@ async def build_and_run_graph(tools):
     # To avoid duplicate prints
     printed_set = set()  
     
-    print("\nMCP Client Started!")
+    logging.info("MCP Client Started!")
     print("Type your queries or 'quit' to exit.")
     
     # Main interaction loop
@@ -135,10 +136,10 @@ async def build_and_run_graph(tools):
         try:
             query = input("\nUser: ")
         except Exception as e:
-            print(f"Input processing error: {e}")
+            logging.error(f"Input processing error: {e}")
             continue
         if query.lower() in ["q", "exit", "quit"]:
-            print("Conversation ended, goodbye!")
+            logging.info("Conversation ended, goodbye!")
             break
         
         # Create initial state with user message
@@ -177,6 +178,13 @@ async def build_and_run_graph(tools):
 
 async def main():
     """Main function to run the MCP client."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger("higress-mcp-client")
+    
     # Parse command line arguments
     args = parse_args("Higress MCP Client")
     
@@ -208,8 +216,8 @@ async def main():
             
             # Get available tools
             response = await session.list_tools()
-            print("Connected to MCP server successfully!")
-            print("Available tools:", [tool.name for tool in response.tools])
+            logger.info("Connected to MCP server successfully!")
+            logger.info(f"Available tools: {[tool.name for tool in response.tools]}")
             
             # Load tools for LangChain
             tools = await load_mcp_tools(session)
