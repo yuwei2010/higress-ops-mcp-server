@@ -1,3 +1,4 @@
+import argparse
 import logging
 from fastmcp import FastMCP
 from tools.plugins.common import CommonTools
@@ -6,9 +7,10 @@ from tools.route import RouteTools
 from tools.service_source import ServiceSourceTools
 from utils.higress_client import HigressClient
 from utils.tools_register import ToolsRegister
+from utils.params import validate, parse_args
 
 class HigressMCPServer:
-    def __init__(self):
+    def __init__(self, base_url=None, username=None, password=None):
         self.name = "higress_mcp_server"
         self.mcp = FastMCP(self.name)
         
@@ -19,7 +21,13 @@ class HigressMCPServer:
         )
         self.logger = logging.getLogger(self.name)
         
-        self.higress_client = HigressClient(self.logger)
+        # Initialize Higress client with provided credentials
+        self.higress_client = HigressClient(
+            logger=self.logger,
+            base_url=base_url,
+            username=username,
+            password=password
+        )
 
         # Initialize tools
         self._register_tools()   
@@ -45,9 +53,27 @@ class HigressMCPServer:
         self.logger.info("Starting MCP server...")
         self.mcp.run()
 
+
+
 def main():
-    server = HigressMCPServer()
+    # Parse command line arguments
+    args = parse_args("Higress MCP Server")
+    
+    # Get and validate credentials
+    base_url, username, password = validate(
+        base_url=args.base_url,
+        username=args.username,
+        password=args.password
+    )
+    
+    # Create and run the server with provided configuration
+    server = HigressMCPServer(
+        base_url=base_url,
+        username=username,
+        password=password
+    )
     server.run()
 
 if __name__ == "__main__":
+    import sys
     main()    

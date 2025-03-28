@@ -3,19 +3,20 @@ import requests
 from typing import Dict, List, Any
 
 class HigressClient:
-    """Client for interacting with Higress API."""
+    """Client for interacting with Higress Console API."""
     
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, username: str, password: str, base_url: str):
         """Initialize the Higress client.
         
         Args:
             logger: Logger instance for logging requests and responses
+            username: Username for basic authentication (required)
+            password: Password for basic authentication (required)
+            base_url: Base URL for the Higress API, defaults to 'http://localhost:8001'
         """
         self.logger = logger
-        self.base_url = "http://localhost:8001"
-        self.cookies = {
-            "_hi_sess": "OM6xeIuIyBQh1JJPwWrOrkpWAgq01LzhLmBHzxZ3M/c="
-        }
+        self.base_url = base_url    
+        self.auth = (username, password)
         
     def _process_response(self, response: requests.Response, method: str, path: str) -> Dict[str, Any]:
         """Process the API response and handle success/error cases.
@@ -59,7 +60,7 @@ class HigressClient:
         url = f"{self.base_url}{path}"
         self.logger.info(f"GET request to: {url}")
         
-        response = requests.get(url, cookies=self.cookies)
+        response = requests.get(url, auth=self.auth)
         return self._process_response(response, "GET", path)
 
 
@@ -80,7 +81,7 @@ class HigressClient:
         url = f"{self.base_url}{path}"
         self.logger.info(f"POST request to: {url}, data: {data}")
 
-        response = requests.post(url, json=data, cookies=self.cookies)
+        response = requests.post(url, json=data, auth=self.auth)
         return self._process_response(response, "POST", path)
 
     def put(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -99,7 +100,7 @@ class HigressClient:
         url = f"{self.base_url}{path}"
         self.logger.info(f"PUT request to: {url}, data: {data}")
         
-        response = requests.put(url, json=data, cookies=self.cookies,)
+        response = requests.put(url, json=data, auth=self.auth)
         return self._process_response(response, "PUT", path)
     
     def get_plugin(self, name: str, scope: str, resource_name: str = None) -> Dict[str, Any]:

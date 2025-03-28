@@ -1,5 +1,4 @@
 import asyncio
-import json
 import uuid
 from os import getenv
 from typing import TypedDict, Annotated, List
@@ -13,11 +12,13 @@ from langgraph.graph import StateGraph
 from langgraph.prebuilt import tools_condition
 from langgraph.graph.message import add_messages
 from utils.graph import draw_graph
+from utils.params import validate, parse_args
+from utils.tools_handler import create_tool_node_with_fallback, print_event
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from langchain_mcp_adapters.tools import load_mcp_tools
-from utils.tools_handler import create_tool_node_with_fallback, print_event
+
 
 # Define write operations that require confirmation
 SENSITIVE_TOOLS = ["update_request_block_plugin", "update_route", "add_route", "update_service_source", "add_service_source"]
@@ -136,7 +137,7 @@ async def build_and_run_graph(tools):
     )
 
     # Draw the graph
-    draw_graph(graph, "graph.png")
+    # draw_graph(graph, "graph.png")
     
     # Create a session ID
     session_id = str(uuid.uuid4())
@@ -201,11 +202,32 @@ async def build_and_run_graph(tools):
                 async for event in result:
                     print_event(event, printed_set)
 
+
+
 async def main():
     """Main function to run the MCP client."""
+    # Parse command line arguments
+    args = parse_args("Higress MCP Client")
+    
+    # Prepare server arguments
+    server_args = ["./server.py"]
+    
+    # Get and validate credentials
+    base_url, username, password = validate(
+        base_url=args.base_url,
+        username=args.username,
+        password=args.password
+    )
+    
+    # Add parameters to server arguments
+    if base_url:
+        server_args.extend(["--base-url", base_url])
+    server_args.extend(["--username", username])
+    server_args.extend(["--password", password])
+    
     server_params = StdioServerParameters(
         command="python",
-        args=["./server.py"],
+        args=server_args,
     )
 
     async with stdio_client(server_params) as (read, write):
@@ -226,4 +248,5 @@ async def main():
 
 # Run the async main function
 if __name__ == "__main__":
+    import sys
     asyncio.run(main())
