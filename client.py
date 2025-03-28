@@ -23,7 +23,7 @@ from tools.handler import create_tool_node_with_fallback, print_event
 # Define write operations that require human confirmation
 SENSITIVE_TOOLS = [
     "add_route", 
-    "add_service_source"
+    "add_service_source",
     "update_route",
     "update_request_block_plugin", 
     "update_service_source", 
