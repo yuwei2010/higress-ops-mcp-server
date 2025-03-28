@@ -1,6 +1,3 @@
-"""
-Tools register for Higress MCP server.
-"""
 import logging
 from typing import Any, List, Type
 from utils.higress_client import HigressClient

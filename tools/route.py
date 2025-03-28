@@ -1,6 +1,4 @@
 from typing import Dict, List, Any
-import logging
-from utils.higress_client import HigressClient
 
 class RouteTools:
     def register_tools(self, mcp: Any):

@@ -1,13 +1,13 @@
-import argparse
 import logging
+
 from fastmcp import FastMCP
 from tools.plugins.common import CommonTools
 from tools.plugins.request_block import RequestBlockTools
 from tools.route import RouteTools
 from tools.service_source import ServiceSourceTools
 from utils.higress_client import HigressClient
+from utils.params import parse_args, validate
 from utils.tools_register import ToolsRegister
-from utils.params import validate, parse_args
 
 class HigressMCPServer:
     def __init__(self, base_url=None, username=None, password=None):
@@ -52,8 +52,6 @@ class HigressMCPServer:
         """Run the MCP server."""
         self.logger.info("Starting MCP server...")
         self.mcp.run()
-
-
 
 def main():
     # Parse command line arguments

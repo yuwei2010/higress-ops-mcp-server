@@ -2,7 +2,6 @@ from langchain_core.messages import ToolMessage
 from langchain_core.runnables import RunnableLambda
 from langgraph.prebuilt import ToolNode
 
-
 def handle_tool_error(state) -> dict:
     """
     处理工具调用时发生的错误。
