@@ -20,9 +20,14 @@ from utils.graph import draw_graph
 from utils.params import parse_args, validate
 from tools.handler import create_tool_node_with_fallback, print_event
 
-
 # Define write operations that require human confirmation
-SENSITIVE_TOOLS = ["update_request_block_plugin", "update_route", "add_route", "update_service_source", "add_service_source"]
+SENSITIVE_TOOLS = [
+    "add_route", 
+    "add_service_source"
+    "update_route",
+    "update_request_block_plugin", 
+    "update_service_source", 
+]
 
 class State(TypedDict):
     """State for the chat application."""
