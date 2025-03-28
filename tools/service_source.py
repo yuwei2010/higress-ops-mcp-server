@@ -1,20 +1,7 @@
 from typing import Dict, List, Any
-import logging
-from utils.higress_client import HigressClient
 
 class ServiceSourceTools:
-    """Tool class for managing service sources.
-    
-    Attributes:
-        logger: Logger instance for logging (set by ToolsRegister)
-        higress_client: HigressClient instance for API calls (set by ToolsRegister)
-    """
-    
     def register_tools(self, mcp: Any):
-        """
-        Register service resource-related tools with the MCP server.
-        """
-        
         @mcp.tool()
         async def list_service_sources() -> List[Dict]:
             """
@@ -26,7 +13,6 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the request fails
             """
-            self.logger.info("Listing all service sources")
             return self.higress_client.list_service_sources()
             
         @mcp.tool()
@@ -53,7 +39,6 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the request fails or required fields are missing
             """
-            self.logger.info(f"Adding service source: {service_source_config}")              
             return self.higress_client.add_service_source(service_source_config)
             
         @mcp.tool()
@@ -70,7 +55,6 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the service source is not found or the request fails
             """
-            self.logger.info(f"Getting service source: {name}")
             return self.higress_client.get_service_source(name)
             
         @mcp.tool()
@@ -88,6 +72,5 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the request fails or required fields are missing
             """
-            self.logger.info(f"Updating service source: {name} with config: {service_source_config}")
             return self.higress_client.update_service_source(name, service_source_config)         
         

@@ -1,15 +1,6 @@
-from typing import Dict, List, Any
-import logging
-from utils.higress_client import HigressClient
+from typing import Dict, Any
 
 class RequestBlockTools:
-    """Tool class for managing request block plugins.
-    
-    Attributes:
-        logger: Logger instance for logging (set by ToolsRegister)
-        higress_client: HigressClient instance for API calls (set by ToolsRegister)
-    """
-    
     def register_tools(self, mcp: Any):
         @mcp.tool()
         async def update_request_block_plugin(enabled: bool, configurations: Dict, scope: str, resource_name: str = None) -> Dict:
@@ -52,7 +43,4 @@ class RequestBlockTools:
                 
             """
             name = "request-block"
-            self.logger.info(f"Update request-block plugin at {scope} scope" + 
-                          (f" for {resource_name}" if resource_name else "") + 
-                          f" with configurations: {configurations}")
             return self.higress_client.update_plugin(name, enabled, configurations, scope, resource_name)

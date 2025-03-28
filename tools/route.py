@@ -3,22 +3,11 @@ import logging
 from utils.higress_client import HigressClient
 
 class RouteTools:
-    """Tool class for managing Higress routes.
-    
-    Attributes:
-        logger: Logger instance for logging (set by ToolsRegister)
-        higress_client: HigressClient instance for API calls (set by ToolsRegister)
-    """
-    
     def register_tools(self, mcp: Any):
-        """
-        Register route-related tools with the MCP server.
-        """
-        
         @mcp.tool()
         async def list_routes() -> List[Dict]:
             """
-            List all available routes in Higress.
+            List all available routes.
             
             Returns:
                 List of route data as dictionaries
@@ -26,7 +15,6 @@ class RouteTools:
             Raises:
                 ValueError: If the request fails
             """
-            self.logger.info("Listing all routes")
             return self.higress_client.list_routes()
             
         @mcp.tool()
@@ -180,4 +168,4 @@ class RouteTools:
                     "methods": ["GET", "POST"],
                 }
             """
-            return self.higress_client.update_route(route_config)
+            return self.higress_client.update_route(route_name, route_config)
