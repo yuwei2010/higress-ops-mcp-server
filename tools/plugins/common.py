@@ -3,15 +3,12 @@ import logging
 from utils.higress_client import HigressClient
 
 class CommonTools:
-    def __init__(self, logger: logging.Logger, higress_client: HigressClient):
-        """Initialize CommonTools with logger and higress client.
-        
-        Args:
-            logger: Logger instance for logging
-            higress_client: HigressClient instance for API calls
-        """
-        self.logger = logger
-        self.higress_client = higress_client
+    """Tool class for common operations.
+    
+    Attributes:
+        logger: Logger instance for logging (set by ToolsRegister)
+        higress_client: HigressClient instance for API calls (set by ToolsRegister)
+    """
     
     def register_tools(self, mcp: Any):
         """Register common tools."""

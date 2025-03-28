@@ -5,6 +5,7 @@ from tools.plugins.request_block import RequestBlockTools
 from tools.route import RouteTools
 from tools.service_source import ServiceSourceTools
 from utils.higress_client import HigressClient
+from utils.tools_register import ToolsRegister
 
 class HigressMCPServer:
     def __init__(self):
@@ -25,17 +26,19 @@ class HigressMCPServer:
 
     def _register_tools(self):
         """Register all MCP tools."""
-        # Initialize tool classes
-        common_tools = CommonTools(self.logger, self.higress_client)
-        request_block_tools = RequestBlockTools(self.logger, self.higress_client)
-        route_tools = RouteTools(self.logger, self.higress_client)
-        service_source_tools = ServiceSourceTools(self.logger, self.higress_client)
+        # Create a tools register
+        register = ToolsRegister(self.logger, self.higress_client, self.mcp)
         
-        # Register tools from each module
-        common_tools.register_tools(self.mcp)
-        request_block_tools.register_tools(self.mcp)
-        route_tools.register_tools(self.mcp)
-        service_source_tools.register_tools(self.mcp)
+        # Define all tool classes to register
+        tool_classes = [
+            CommonTools,
+            RequestBlockTools,
+            RouteTools,
+            ServiceSourceTools
+        ]
+        
+        # Register all tools
+        register.register_all_tools(tool_classes)
 
     def run(self):
         """Run the MCP server."""
