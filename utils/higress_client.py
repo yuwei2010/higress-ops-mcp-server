@@ -205,13 +205,13 @@ class HigressClient:
         path = f"/v1/routes/{name}"
         return self.get(path)
         
-    def update_route(self, route_name: str, route_config: Dict[str, Any]) -> Dict[str, Any]:
+    def update_route(self, name: str, configurations: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create or update a route.
         
         Args:
-            route_name: The name of the route (required)
-            route_config: The route configuration dictionary
+            name: The name of the route (required)
+            configurations: The route configuration dictionary
 
         Returns:
             The updated route configuration
@@ -219,18 +219,18 @@ class HigressClient:
         Raises:
             ValueError: If the request fails or required fields are missing
         """
-        if not route_name:
+        if not name:
             raise ValueError("Route name is required") 
 
-        path = f"/v1/routes/{route_name}"
-        return self.put(path, route_config)
+        path = f"/v1/routes/{name}"
+        return self.put(path, configurations)
 
-    def add_route(self, route_config: Dict[str, Any]) -> Dict[str, Any]:
+    def add_route(self, configurations: Dict[str, Any]) -> Dict[str, Any]:
         """
         Create or update a route.
         
         Args:
-            route_config: The route configuration dictionary. Must contain at least:
+            configurations: The route configuration dictionary. Must contain at least:
                 - name: The name of the route
                 - path: The path configuration
                 - services: The list of services for this route
@@ -241,15 +241,15 @@ class HigressClient:
         Raises:
             ValueError: If the request fails or required fields are missing
         """
-        if not route_config.get("name"):
+        if not configurations.get("name"):
             raise ValueError("Route name is required")
-        if not route_config.get("path"):
+        if not configurations.get("path"):
             raise ValueError("Route path configuration is required")
-        if not route_config.get("services"):
+        if not configurations.get("services"):
             raise ValueError("At least one service is required for the route")
             
         path = f"/v1/routes"
-        return self.post(path, route_config)
+        return self.post(path, configurations)
 
     def list_service_sources(self) -> List[Dict[str, Any]]:
         """
@@ -264,12 +264,12 @@ class HigressClient:
         path = "/v1/service-sources"
         return self.get(path)
         
-    def add_service_source(self, service_source_config: Dict[str, Any]) -> Dict[str, Any]:
+    def add_service_source(self, configurations: Dict[str, Any]) -> Dict[str, Any]:
         """
         Add a new service source.
         
         Args:
-            service_source_config: The service source configuration dictionary. Must contain at least:
+            configurations: The service source configuration dictionary. Must contain at least:
                 - name: The name of the service source
                 - type: The type of the service source (static or dns)
                 - domain: The domain name for the service source
@@ -281,21 +281,21 @@ class HigressClient:
         Raises:
             ValueError: If the request fails or required fields are missing
         """
-        if not service_source_config.get("name"):
+        if not configurations.get("name"):
             raise ValueError("Service source name is required")
-        if not service_source_config.get("type"):
+        if not configurations.get("type"):
             raise ValueError("Service source type is required")
-        if not service_source_config.get("domain"):
+        if not configurations.get("domain"):
             raise ValueError("Service source domain is required")
-        if not service_source_config.get("port"):
+        if not configurations.get("port"):
             raise ValueError("Service source port is required")
         
-        source_type = service_source_config.get("type")
-        if source_type == "dns" and not service_source_config.get("protocol"):
+        source_type = configurations.get("type")
+        if source_type == "dns" and not configurations.get("protocol"):
             raise ValueError("Protocol is required for DNS service sources")
                 
         path = "/v1/service-sources"
-        return self.post(path, service_source_config)
+        return self.post(path, configurations)
         
     def get_service_source(self, name: str) -> Dict[str, Any]:
         """
@@ -313,13 +313,13 @@ class HigressClient:
         path = f"/v1/service-sources/{name}"
         return self.get(path)
         
-    def update_service_source(self, name: str, service_source_config: Dict[str, Any]) -> Dict[str, Any]:
+    def update_service_source(self, name: str, configurations: Dict[str, Any]) -> Dict[str, Any]:
         """
         Update a service source.
         
         Args:
             name: The name of the service source
-            service_source_config: The service source configuration dictionary
+            configurations: The service source configuration dictionary
                 
         Returns:
             The updated service source configuration
@@ -331,4 +331,4 @@ class HigressClient:
             raise ValueError("Service source name is required")
             
         path = f"/v1/service-sources/{name}"
-        return self.put(path, service_source_config)
+        return self.put(path, configurations)

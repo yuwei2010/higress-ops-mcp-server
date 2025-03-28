@@ -35,12 +35,12 @@ class RouteTools:
             return self.higress_client.get_route(name)
             
         @mcp.tool()
-        async def add_route(route_config: Dict[str, Any]) -> Dict:
+        async def add_route(configurations: Dict[str, Any]) -> Dict:
             """
-            Add a new route. The 3 required fields in the route_config are name, path, services.
+            Add a new route. The 3 required fields in the configurations are name, path, services.
 
             Args:
-                route_config: Dict[str, Any] containing the following keys:
+                configurations: Dict[str, Any] containing the following keys:
                     - name (required): The name of the route
                     - path (required): Dict[str, Any]: The path configuration with keys:
                         - matchType: str: Match type (PRE, EQUAL, REGULAR)
@@ -120,16 +120,16 @@ class RouteTools:
                     }
                 }
             """
-            return self.higress_client.add_route(route_config)
+            return self.higress_client.add_route(configurations)
 
         @mcp.tool()
-        async def update_route(route_name: str, route_config: Dict[str, Any]) -> Dict:
+        async def update_route(name: str, configurations: Dict[str, Any]) -> Dict:
             """
             Update an existing route. Only provide the fields you want to update.
             
             Args:
-                route_name: The name of the route (required)
-                route_config: Dict[str, Any] containing the following keys:
+                name: The name of the route (required)
+                configurations: Dict[str, Any] containing the following keys:
                     - path: Dict[str, Any]: The path configuration with keys:
                         - matchType: str: Match type (PRE, EQUAL, REGULAR)
                         - matchValue: str: Value to match
@@ -168,4 +168,4 @@ class RouteTools:
                     "methods": ["GET", "POST"],
                 }
             """
-            return self.higress_client.update_route(route_name, route_config)
+            return self.higress_client.update_route(name, configurations)

@@ -16,12 +16,12 @@ class ServiceSourceTools:
             return self.higress_client.list_service_sources()
             
         @mcp.tool()
-        async def add_service_source(service_source_config: Dict[str, Any]) -> Dict:
+        async def add_service_source(configurations: Dict[str, Any]) -> Dict:
             """
             Add a new service source.
             
             Args:
-                service_source_config: Dict[str, Any] containing the following keys:
+                configurations: Dict[str, Any] containing the following keys:
                     - name (required): The name of the service source
                     - type (required): The type of the service source, must be one of:
                       * static: For static services with keys:
@@ -39,7 +39,7 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the request fails or required fields are missing
             """
-            return self.higress_client.add_service_source(service_source_config)
+            return self.higress_client.add_service_source(configurations)
             
         @mcp.tool()
         async def get_service_source(name: str) -> Dict:
@@ -58,13 +58,13 @@ class ServiceSourceTools:
             return self.higress_client.get_service_source(name)
             
         @mcp.tool()
-        async def update_service_source(name: str, service_source_config: Dict[str, Any]) -> Dict:
+        async def update_service_source(name: str, configurations: Dict[str, Any]) -> Dict:
             """
             Update a service source.
             
             Args:
                 name: The name of the service source
-                service_source_config: Dict[str, Any] containing the configuration to update
+                configurations: Dict[str, Any] containing the configuration to update
                     
             Returns:
                 The updated service source configuration
@@ -72,5 +72,5 @@ class ServiceSourceTools:
             Raises:
                 ValueError: If the request fails or required fields are missing
             """
-            return self.higress_client.update_service_source(name, service_source_config)         
+            return self.higress_client.update_service_source(name, configurations)         
         
