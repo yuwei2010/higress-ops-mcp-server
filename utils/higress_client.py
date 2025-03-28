@@ -41,8 +41,7 @@ class HigressClient:
             error_msg = response_json.get("message", "Unknown API error")
             self.logger.error(f"Request API error for {method} {path}: {error_msg}")
             raise ValueError(f"Request API error for {method} {path}: {error_msg}")
-        
-        # 如果 data 字段存在，返回 data；否则返回整个响应
+
         return response_json.get("data", response_json)
 
     def get(self, path: str) -> Dict[str, Any]:

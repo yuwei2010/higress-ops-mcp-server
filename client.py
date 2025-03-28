@@ -43,12 +43,10 @@ class HigressAssistant:
 
 def create_assistant_node(tools):
     """Create the assistant node that uses the LLM to generate responses."""
-    # Create a model instance
     llm = ChatOpenAI(
         openai_api_key=getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
         model_name="qwen/qwen-turbo",
-        # model_name="openai/gpt-4o",
     )
     
     llm_with_tools = llm.bind_tools(tools)
