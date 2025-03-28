@@ -49,7 +49,6 @@ class HigressAssistant:
         return {'messages': result}
 
 
-# Create assistant node
 def create_assistant_node(tools):
     """Create the assistant node that uses the LLM to generate responses."""
     # Create a model instance
@@ -60,49 +59,25 @@ def create_assistant_node(tools):
         # model_name="openai/gpt-4o",
     )
     
-    # System prompt with instruction to get current plugin config before updating
-    system_prompt = (
-        """
-        When updating a plugin configuration with `update_request_block_plugin`, 
-        ALWAYS first call `get_plugin` to retrieve the current configuration before making any changes. 
-        This ensures that only the specified parameters are updated while preserving the existing configuration values.
-        """
-    )
-    
-    # Apply system prompt to LLM
-    llm_with_prompt = llm.bind(system_prompt=system_prompt)
-
-    # Bind tools to the LLM with the system prompt
-    llm_with_tools = llm_with_prompt.bind_tools(tools)
-
+    llm_with_tools = llm.bind_tools(tools)
     return HigressAssistant(llm_with_tools)
     
 
-# Function to route tools based on whether they are read or write operations
 def route_conditional_tools(state: State) -> str:
     """Route to the appropriate tool node based on the tool type."""
-    print("Route conditional tools.......")
-    print("State:", state)
     next_node = tools_condition(state)
     if next_node == END:
-        print("Route to END........")
         return END
     
     ai_message = state["messages"][-1]
     tool_call = ai_message.tool_calls[0]
     
-    # 检查是否是敏感工具
     if tool_call["name"] in SENSITIVE_TOOLS:
-        print("Route to sensitive tools........")
         return "sensitive_tools"
-  
-    print("Route to safe tools........")
     return "safe_tools"
 
 async def build_and_run_graph(tools):
     """Build and run the LangGraph."""
-    
-    # Categorize tools
     sensitive_tools = []
     safe_tools = []
     for tool in tools:
@@ -149,7 +124,8 @@ async def build_and_run_graph(tools):
         }
     }
     
-    printed_set = set()  # To avoid duplicate prints
+    # To avoid duplicate prints
+    printed_set = set()  
     
     print("\nMCP Client Started!")
     print("Type your queries or 'quit' to exit.")
@@ -157,14 +133,12 @@ async def build_and_run_graph(tools):
     # Main interaction loop
     while True:
         try:
-            query = input("\n用户: ")
-            # 检查输入是否完整
-            print(f"收到输入: {query}")
+            query = input("\nUser: ")
         except Exception as e:
-            print(f"输入处理错误: {e}")
+            print(f"Input processing error: {e}")
             continue
         if query.lower() in ["q", "exit", "quit"]:
-            print("对话结束，拜拜！")
+            print("Conversation ended, goodbye!")
             break
         
         # Create initial state with user message
@@ -179,9 +153,8 @@ async def build_and_run_graph(tools):
         
         # Check if we need user confirmation
         current_state = graph.get_state(config)
-        # print("########### Current state:", current_state)
         if current_state.next:
-            user_input = input("\n您是否批准上述操作？输入'y'继续；否则，请说明您请求的更改: ")
+            user_input = input("\nDo you approve the above operation? Enter 'y' to continue; otherwise, please explain your requested changes: ")
             if user_input.strip().lower() == "y":
                 # Continue execution
                 events = graph.astream(None, config, stream_mode="values")
@@ -194,15 +167,13 @@ async def build_and_run_graph(tools):
                     "messages": [
                             ToolMessage(
                                 tool_call_id=tool_call_id,
-                                content=f"操作被用户拒绝。原因: '{user_input}'。",
+                                content=f"Operation rejected by user. Reason: '{user_input}'.",
                             )
                         ]
                     }
                 result = graph.astream(rejection_state, config, stream_mode="values")
                 async for event in result:
                     print_event(event, printed_set)
-
-
 
 async def main():
     """Main function to run the MCP client."""
@@ -248,5 +219,4 @@ async def main():
 
 # Run the async main function
 if __name__ == "__main__":
-    import sys
     asyncio.run(main())
