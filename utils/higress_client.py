@@ -5,17 +5,17 @@ from typing import Dict, List, Any
 class HigressClient:
     """Client for interacting with Higress Console API."""
     
-    def __init__(self, logger: logging.Logger, username: str, password: str, base_url: str):
+    def __init__(self, logger: logging.Logger, username: str, password: str, higress_url: str):
         """Initialize the Higress client.
         
         Args:
             logger: Logger instance for logging requests and responses
             username: Username for basic authentication (required)
             password: Password for basic authentication (required)
-            base_url: Base URL for the Higress API, defaults to 'http://localhost:8001'
+            higress_url: Higress URL for the API, defaults to 'http://localhost:8001'
         """
         self.logger = logger
-        self.base_url = base_url    
+        self.higress_url = higress_url    
         self.auth = (username, password)
         
     def _process_response(self, response: requests.Response, method: str, path: str) -> Dict[str, Any]:
@@ -56,7 +56,7 @@ class HigressClient:
         Raises:
             ValueError: If the request fails or the API returns success=false
         """
-        url = f"{self.base_url}{path}"
+        url = f"{self.higress_url}{path}"
         self.logger.info(f"GET request to: {url}")
         
         response = requests.get(url, auth=self.auth)
@@ -77,7 +77,7 @@ class HigressClient:
             ValueError: If the request fails or the API returns success=false
         """
 
-        url = f"{self.base_url}{path}"
+        url = f"{self.higress_url}{path}"
         self.logger.info(f"POST request to: {url}, data: {data}")
 
         response = requests.post(url, json=data, auth=self.auth)
@@ -96,7 +96,7 @@ class HigressClient:
         Raises:
             ValueError: If the request fails or the API returns success=false
         """
-        url = f"{self.base_url}{path}"
+        url = f"{self.higress_url}{path}"
         self.logger.info(f"PUT request to: {url}, data: {data}")
         
         response = requests.put(url, json=data, auth=self.auth)

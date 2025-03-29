@@ -4,6 +4,7 @@ import uuid
 from os import getenv
 from typing import Annotated, List, TypedDict
 
+from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_mcp_adapters.tools import load_mcp_tools
@@ -16,7 +17,6 @@ from langgraph.prebuilt import tools_condition
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from utils.graph import draw_graph
 from utils.params import parse_args, validate
 from tools.handler import create_tool_node_with_fallback, print_event
 
@@ -44,9 +44,9 @@ class HigressAssistant:
 def create_assistant_node(tools):
     """Create the assistant node that uses the LLM to generate responses."""
     llm = ChatOpenAI(
-        openai_api_key=getenv("OPENROUTER_API_KEY"),
-        openai_api_base="https://openrouter.ai/api/v1",
-        model_name="qwen/qwen-turbo",
+        openai_api_key=getenv("OPENAI_API_KEY"),
+        openai_api_base=getenv("OPENAI_API_BASE"),
+        model_name=getenv("MODEL_NAME"),
     )
     
     llm_with_tools = llm.bind_tools(tools)
@@ -212,15 +212,15 @@ async def main():
     server_args = ["./server.py"]
     
     # Get and validate credentials
-    base_url, username, password = validate(
-        base_url=args.base_url,
+    higress_url, username, password = validate(
+        higress_url=args.higress_url,
         username=args.username,
         password=args.password
     )
     
     # Add parameters to server arguments
-    if base_url:
-        server_args.extend(["--base-url", base_url])
+    if higress_url:
+        server_args.extend(["--higress-url", higress_url])
     server_args.extend(["--username", username])
     server_args.extend(["--password", password])
     
@@ -247,4 +247,6 @@ async def main():
 
 # Run the async main function
 if __name__ == "__main__":
+    # Load environment variables from .env file
+    load_dotenv()
     asyncio.run(main())

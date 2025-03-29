@@ -1,5 +1,6 @@
 import logging
 
+from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from tools.plugins.common import CommonTools
@@ -10,9 +11,8 @@ from tools.service_source import ServiceSourceTools
 from utils.higress_client import HigressClient
 from utils.params import parse_args, validate
 
-
 class HigressMCPServer:
-    def __init__(self, base_url=None, username=None, password=None):
+    def __init__(self, higress_url=None, username=None, password=None):
         self.name = "higress-mcp-server"
         self.mcp = FastMCP(self.name)
         self.logger = logging.getLogger(self.name)
@@ -20,7 +20,7 @@ class HigressMCPServer:
         # Initialize Higress client with provided credentials
         self.higress_client = HigressClient(
             logger=self.logger,
-            base_url=base_url,
+            higress_url=higress_url,
             username=username,
             password=password
         )
@@ -54,20 +54,21 @@ def main():
     args = parse_args("Higress MCP Server")
     
     # Get and validate credentials
-    base_url, username, password = validate(
-        base_url=args.base_url,
+    higress_url, username, password = validate(
+        higress_url=args.higress_url,
         username=args.username,
         password=args.password
     )
     
     # Create and run the server with provided configuration
     server = HigressMCPServer(
-        base_url=base_url,
+        higress_url=higress_url,
         username=username,
         password=password
     )
     server.run()
 
 if __name__ == "__main__":
-    import sys
+    # Load environment variables from .env file
+    load_dotenv()
     main()    
