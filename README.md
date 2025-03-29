@@ -1,4 +1,4 @@
-# Higress MCP Server
+# Higress OPS MCP Server
 
 A Model Context Protocol (MCP) server implementation that enables comprehensive configuration and management of Higress. This repository also provides an MCP client built on top of LangGraph and LangChain MCP Adapters, facilitating interaction with the Higress MCP Server through a well-designed agent flow architecture.
 
