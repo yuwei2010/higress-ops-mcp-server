@@ -4,6 +4,10 @@ A Model Context Protocol (MCP) server implementation that allow configuration an
 
 ## Demo
 
+
+https://github.com/user-attachments/assets/bae66b77-a158-452e-9196-98060bac0df7
+
+
 ## Config Environment Variables
 
 Copy the `.env.example` file to `.env` and fill in the corresponding values.
